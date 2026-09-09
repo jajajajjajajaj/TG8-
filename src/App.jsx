@@ -40,7 +40,7 @@ export default function App() {
       <div style={{maxWidth:1180,margin:"0 auto"}}>
         <header style={{display:"flex",flexWrap:"wrap",alignItems:"baseline",gap:"6px 16px",marginBottom:18}}>
           <h1 style={{fontSize:22,fontWeight:800,margin:0}}>킹샷 TG8 건설 계산기</h1>
-          <span style={{color:C.dim,fontSize:13}}>기준표 Made by 계산기(943) · 자원 백만(M) 단위 · 시간 분 단위</span>
+          <span style={{color:C.dim,fontSize:13}}>기준표 Made by 프랜시스 베이컨(943) · 자원 백만(M) 단위 · 시간 분 단위</span>
           <span style={{marginLeft:"auto"}}>
             <button style={btn} onClick={()=>go(!admin)}>{admin?"계산기":"관리자"}</button>
           </span>
