@@ -46,7 +46,7 @@ export default function App() {
       <div style={{maxWidth:1180,margin:"0 auto"}}>
         <header style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:"8px 16px",marginBottom:18}}>
           <h1 style={{fontSize:22,fontWeight:800,margin:0}}>킹샷 TG 계산기</h1>
-          <span style={{color:C.dim,fontSize:13}}>자원 백만(M) 단위</span>
+          <span style={{color:C.dim,fontSize:13}}>Made by 프랜시스 베이컨(943) · 자원 백만(M) 단위</span>
           <span style={{marginLeft:"auto",display:"flex",gap:6,flexWrap:"wrap"}}>
             {tabBtn("build","TG8 건설")}
             {tabBtn("research","고급 순금 연구")}
