@@ -5,11 +5,12 @@ import Calculator from "./Calculator.jsx";
 import Admin from "./Admin.jsx";
 import Research from "./Research.jsx";
 import Refine from "./Refine.jsx";
+import Gear from "./Gear.jsx";
 import { ADVANCED } from "./research/data.js";
 import { BASIC } from "./research/basicData.js";
 import { C, font, btn, THEME_CSS, useTheme } from "./ui.jsx";
 
-const routeOf = () => { const h=window.location.hash; return h==="#admin"?"admin":h==="#research"?"research":h==="#basic"?"basic":h==="#refine"?"refine":"build"; };
+const routeOf = () => { const h=window.location.hash; return h==="#admin"?"admin":h==="#research"?"research":h==="#basic"?"basic":h==="#refine"?"refine":h==="#gear"?"gear":"build"; };
 
 export default function App() {
   const [costs,setCosts] = useState(null);
@@ -57,6 +58,7 @@ export default function App() {
             {tabBtn("basic","순금 연구")}
             {tabBtn("research","순금 진급 연구")}
             {tabBtn("refine","정련순금 제련")}
+            {tabBtn("gear","영주 장비·보석")}
             {tabBtn("admin","관리자")}
             <button style={{...btn,padding:"4px 8px"}} onClick={toggleTheme} title={theme==="dark"?"밝은 화면으로":"어두운 화면으로"} aria-label="테마 전환">
               {theme==="dark"?"☀ 밝게":"☾ 어둡게"}
@@ -67,6 +69,7 @@ export default function App() {
         {route==="research" ? <Research key="advanced" dataset={ADVANCED}/>
           : route==="basic" ? <Research key="basic" dataset={BASIC}/>
           : route==="refine" ? <Refine/>
+          : route==="gear" ? <Gear/>
           : !costs ? <div style={{color:C.dim}}>기준표를 불러오는 중…</div>
           : route==="admin" ? <Admin costs={costs} boxes={boxes} onClose={()=>go("build")}
                       onSaved={(c,b)=>{setCosts(c);setBoxes(b);setSource("Supabase 기준표 (방금 저장)");}}/>
