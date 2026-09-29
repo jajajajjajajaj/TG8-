@@ -67,14 +67,20 @@ kingshotdata.com / kingshot.net 의 Advanced Truegold Research 92개 연구(1,01
 - 연구 기준표 탭에서 레벨별 비용·시간 확인
 - 입력값은 브라우저(localStorage)에만 저장됨. 데이터는 `src/research/` 에 하드코딩 (수정 시 GitHub에서 파일 편집 → 자동 재배포)
 
-## 6. 사용법
+## 6. 정련순금 제련 계산기 (`#refine` 탭)
+
+순금 도가니 제련 확률표(구간별 가격 20/50/100/130/160, 주 최대 100회, 하루 첫 1회 50% 할인)를 내장.
+목표 정련순금과 기간(주)을 넣으면 순금이 가장 적게 드는 주차별 제련 횟수와 "1일차 X회 → 이후 하루 1회" 일정을 계산.
+데이터·로직은 `src/Refine.jsx`.
+
+## 7. 사용법
 
 - 공개 링크: 누구나 계산기 사용
 - 관리자: 오른쪽 위 **관리자** 버튼(또는 주소 뒤에 `#admin`) → 로그인 → 수치 수정 → **변경사항 저장**
   - 저장 즉시 모든 사용자가 새로고침하면 반영됩니다.
   - 관리자 목록에 없는 계정으로 로그인하면 저장이 거부됩니다(RLS).
 
-## 7. 로컬에서 돌려보기
+## 8. 로컬에서 돌려보기
 
 ```bash
 npm install
@@ -91,6 +97,7 @@ src/main.jsx          진입점
 src/App.jsx           데이터 로드 + 계산기/관리자 전환
 src/Calculator.jsx    계산 로직·화면
 src/Admin.jsx         관리자 로그인·기준표 편집
+src/Refine.jsx        정련순금 제련 계산기 (확률표·최적 배분)
 src/Research.jsx      연구 계산기 화면 (dataset prop으로 일반/진급 공용)
 src/research/data.js  순금 진급 연구 92개 정의 + 레벨별 비용 함수 (ADVANCED 데이터셋)
 src/research/basicData.js 일반 순금 연구 30개 정의 + 레벨별 비용표 (BASIC 데이터셋)
