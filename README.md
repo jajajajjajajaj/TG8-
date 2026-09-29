@@ -1,4 +1,4 @@
-# 킹샷 TG 계산기 (TG8 건설 + 고급 순금 연구)
+# 킹샷 TG 계산기 (TG 업그레이드 + 순금 진급 연구)
 
 기준표 수치는 Supabase에 저장되고(누구나 읽기), 로그인한 관리자만 수정할 수 있습니다.
 링크를 공유받은 사람은 각자 브라우저에서 보유 자원을 넣고 계산합니다(입력값은 저장되지 않음).
@@ -50,7 +50,15 @@ git push -u origin main
 4. **Deploy** → 완료되면 `https://tg8-calculator-xxxx.vercel.app` 같은 공개 링크가 생깁니다.
    이후 GitHub `main`에 push 할 때마다 자동으로 재배포됩니다.
 
-## 4. 고급 순금 연구 계산기 (`#research` 탭)
+## 4. 순금 연구 계산기 (`#basic` 탭)
+
+전쟁아카데미 일반 순금 연구(T11 해제 트리) 30개 연구(264레벨) 데이터를 내장. 보병·기병·궁병 3트리, 각각
+대대 → 치명/체력 → 공격/방어 → 군단병 → T11 해제 → 치료/구급/훈련 순.
+- 레벨별로 전쟁아카데미 TG 요구(1~5)와 선행 연구 레벨이 다르게 걸려 있어 그대로 반영
+- 화면·기능은 순금 진급 연구 탭과 동일 (시뮬레이션 / 목표 계산 / 기준표)
+- 데이터는 `src/research/basicData.js`
+
+## 5. 순금 진급 연구 계산기 (`#research` 탭)
 
 kingshotdata.com / kingshot.net 의 Advanced Truegold Research 92개 연구(1,010레벨) 데이터를 내장.
 - 보유 자원(빵·목재·석재·철광·골드·순금 가루·정련 순금)과 현재 연구 레벨, 전쟁아카데미 TG 레벨을 넣으면
@@ -59,14 +67,14 @@ kingshotdata.com / kingshot.net 의 Advanced Truegold Research 92개 연구(1,01
 - 연구 기준표 탭에서 레벨별 비용·시간 확인
 - 입력값은 브라우저(localStorage)에만 저장됨. 데이터는 `src/research/` 에 하드코딩 (수정 시 GitHub에서 파일 편집 → 자동 재배포)
 
-## 5. 사용법
+## 6. 사용법
 
 - 공개 링크: 누구나 계산기 사용
 - 관리자: 오른쪽 위 **관리자** 버튼(또는 주소 뒤에 `#admin`) → 로그인 → 수치 수정 → **변경사항 저장**
   - 저장 즉시 모든 사용자가 새로고침하면 반영됩니다.
   - 관리자 목록에 없는 계정으로 로그인하면 저장이 거부됩니다(RLS).
 
-## 6. 로컬에서 돌려보기
+## 7. 로컬에서 돌려보기
 
 ```bash
 npm install
@@ -83,9 +91,10 @@ src/main.jsx          진입점
 src/App.jsx           데이터 로드 + 계산기/관리자 전환
 src/Calculator.jsx    계산 로직·화면
 src/Admin.jsx         관리자 로그인·기준표 편집
-src/Research.jsx      고급 순금 연구 계산기 화면
-src/research/data.js  연구 92개 정의(한글명·선행·티어) + 레벨별 비용 함수
-src/research/engine.js 시뮬레이션·목표 계산 로직
+src/Research.jsx      연구 계산기 화면 (dataset prop으로 일반/진급 공용)
+src/research/data.js  순금 진급 연구 92개 정의 + 레벨별 비용 함수 (ADVANCED 데이터셋)
+src/research/basicData.js 일반 순금 연구 30개 정의 + 레벨별 비용표 (BASIC 데이터셋)
+src/research/engine.js 시뮬레이션·목표 계산 로직 (데이터셋 공용)
 src/research/costTemplates.js 티어별 비용 템플릿
 src/defaultData.js    DB 미연결 시 기본값
 src/lib/supabase.js   Supabase 클라이언트

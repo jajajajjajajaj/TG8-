@@ -21,9 +21,9 @@ export const DEFAULT_COSTS = [
   ["병원","TG5→TG6",180,13,120,120,24,6,3000],
   ["병원","TG6→TG7",216,19,135,135,27,6.5,3600],
   ["병원","TG7→TG8",216,24,165,165,33,8,4020],
-  ["순금아카데미","TG5→TG6",405,25,240,240,48,12,4320],
-  ["순금아카데미","TG6→TG7",486,37,270,270,50,13.5,5184],
-  ["순금아카데미","TG7→TG8",486,54,330,330,65,16.5,5760],
+  ["전쟁아카데미","TG5→TG6",405,25,240,240,48,12,4320],
+  ["전쟁아카데미","TG6→TG7",486,37,270,270,50,13.5,5184],
+  ["전쟁아카데미","TG7→TG8",486,54,330,330,65,16.5,5760],
 ].map(([building,stage,gold,refined_gold,food,wood,stone,iron,minutes_per_upgrade],i)=>({
   id:i+1, sort_order:i+1, building,stage,gold,refined_gold,food,wood,stone,iron,minutes_per_upgrade
 }));

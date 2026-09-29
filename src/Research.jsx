@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { C, num, panel, h2, th, td, tdL, btn, btnPrimary, input, dhm, NumInput } from "./ui.jsx";
-import { TECHS, TECH_BY_ID, TIERS, RES, RES_KO, RES_UNIT, RES_SCALE, levelCost, effectAt, prereqLevel } from "./research/data.js";
-import { simulate, planGoal, allowedSet, unlockStatus, emptyRes } from "./research/engine.js";
-
-const STORE_KEY = "tg8_research_v1";
-const GROUPS = ["전체","보병","기병","궁병"];
+import { RES, RES_KO, RES_UNIT, RES_SCALE } from "./research/data.js";
+import { simulate, planGoal, allowedSet } from "./research/engine.js";
 
 const fmtRes = (r,v) => {
   const x = v/RES_SCALE[r];
@@ -13,33 +10,35 @@ const fmtRes = (r,v) => {
 };
 const fmtCost = c => RES.filter(r=>c[r]>0).map(r=>`${RES_KO[r]} ${fmtRes(r,c[r])}${RES_UNIT[r]==="M"?"M":""}`).join(" · ");
 
-function load(){ try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s) return s; }catch{} return null; }
+function load(key){ try{ const s=JSON.parse(localStorage.getItem(key)); if(s) return s; }catch{} return null; }
 
-export default function Research(){
-  const saved = useMemo(load,[]);
-  const [tg,setTg] = useState(saved?.tg ?? 6);
+/** dataset: ADVANCED(고급 순금 연구) | BASIC(일반 순금 연구) */
+export default function Research({ dataset: ds }){
+  const { TECHS, TECH_BY_ID, TIERS, levelCost, effectAt } = ds;
+  const saved = useMemo(()=>load(ds.storeKey),[ds.storeKey]);
+  const [tg,setTg] = useState(saved?.tg ?? ds.tgOptions[Math.min(1,ds.tgOptions.length-1)]);
   const [speed,setSpeed] = useState(saved?.speed ?? 0);
   const [have,setHave] = useState(saved?.have ?? Object.fromEntries(RES.map(r=>[r,0])));   // 입력 단위 (M / 개)
   const [levels,setLevels] = useState(saved?.levels ?? {});
   const [strategy,setStrategy] = useState(saved?.strategy ?? "even");
   const [group,setGroup] = useState(saved?.group ?? "전체");
   const [tab,setTab] = useState("sim");
-  const [goalId,setGoalId] = useState(saved?.goalId ?? "mauls1");
+  const [goalId,setGoalId] = useState(TECH_BY_ID[saved?.goalId] ? saved.goalId : ds.defaultGoal);
   const [goalLv,setGoalLv] = useState(saved?.goalLv ?? 10);
   const [showLevels,setShowLevels] = useState(true);
-  const [refId,setRefId] = useState("mauls1");
+  const [refId,setRefId] = useState(ds.defaultGoal);
 
-  useEffect(()=>{ try{ localStorage.setItem(STORE_KEY, JSON.stringify({tg,speed,have,levels,strategy,group,goalId,goalLv})); }catch{} },
+  useEffect(()=>{ try{ localStorage.setItem(ds.storeKey, JSON.stringify({tg,speed,have,levels,strategy,group,goalId,goalLv})); }catch{} },
     [tg,speed,have,levels,strategy,group,goalId,goalLv]);
 
   const haveRaw = useMemo(()=>Object.fromEntries(RES.map(r=>[r,(have[r]||0)*RES_SCALE[r]])),[have]);
-  const sim = useMemo(()=>simulate({levels,have:haveRaw,tg,strategy,allowed:allowedSet(group),speed}),[levels,haveRaw,tg,strategy,group,speed]);
-  const goal = useMemo(()=>planGoal({levels,targetId:goalId,targetLevel:goalLv,speed}),[levels,goalId,goalLv,speed]);
+  const sim = useMemo(()=>simulate(ds,{levels,have:haveRaw,tg,strategy,allowed:allowedSet(ds,group),speed}),[ds,levels,haveRaw,tg,strategy,group,speed]);
+  const goal = useMemo(()=>planGoal(ds,{levels,targetId:goalId,targetLevel:goalLv,speed}),[ds,levels,goalId,goalLv,speed]);
   const goalShort = useMemo(()=>RES.map(r=>({r,need:goal.total[r],have:haveRaw[r],left:haveRaw[r]-goal.total[r]})),[goal,haveRaw]);
   const goalOK = goalShort.every(x=>x.left>=-1e-6) && tg>=goal.tgReq;
 
   const setLv = (id,v)=> setLevels(l=>({...l,[id]:Math.max(0,Math.min(TECH_BY_ID[id].maxLevel, Math.floor(Number(v)||0)))}));
-  const setTierAll = (tier,v)=> setLevels(l=>{ const n={...l}; TECHS.filter(t=>t.tier===tier).forEach(t=>n[t.id]=Math.min(t.maxLevel,v)); return n; });
+  const setTierAll = (tier,v)=> setLevels(l=>{ const n={...l}; TECHS.filter(t=>t.tier===tier).forEach(t=>n[t.id]= v==="max"?t.maxLevel:Math.min(t.maxLevel,v)); return n; });
   const applySim = ()=>{ setLevels(sim.levels); setHave(Object.fromEntries(RES.map(r=>[r,sim.remaining[r]/RES_SCALE[r]]))); };
 
   const refTech = TECH_BY_ID[refId];
@@ -66,15 +65,15 @@ export default function Research(){
           <section style={panel}>
             <h2 style={h2}>조건</h2>
             <div style={{display:"grid",gap:10}}>
-              <label style={row}><span>전쟁아카데미 TG 레벨<div style={sub}>TG5: 기본 · TG6: I~II · TG7: III~IV · TG8: V~VI</div></span>
-                <select value={tg} onChange={e=>setTg(+e.target.value)} style={sel}>{[5,6,7,8].map(n=><option key={n} value={n}>TG{n}</option>)}</select></label>
+              <label style={row}><span>전쟁아카데미 TG 레벨<div style={sub}>{ds.tgHint}</div></span>
+                <select value={tg} onChange={e=>setTg(+e.target.value)} style={sel}>{ds.tgOptions.map(n=><option key={n} value={n}>TG{n}</option>)}</select></label>
               <label style={row}><span>연구 속도 보너스<div style={sub}>시간 계산에만 영향</div></span>
                 <NumInput value={speed} onChange={setSpeed} step={0.1} w={80} suffix="%"/></label>
               <label style={row}><span>시뮬 방식</span>
                 <select value={strategy} onChange={e=>setStrategy(e.target.value)} style={sel}>
                   <option value="even">낮은 레벨부터 고르게</option><option value="order">트리 순서대로 끝내기</option></select></label>
-              <label style={row}><span>집중 병종<div style={sub}>경제·부대 연구는 항상 포함</div></span>
-                <select value={group} onChange={e=>setGroup(e.target.value)} style={sel}>{GROUPS.map(g=><option key={g}>{g}</option>)}</select></label>
+              <label style={row}><span>집중 병종<div style={sub}>{ds.groupHint}</div></span>
+                <select value={group} onChange={e=>setGroup(e.target.value)} style={sel}>{ds.groups.map(g=><option key={g}>{g}</option>)}</select></label>
             </div>
           </section>
 
@@ -99,9 +98,9 @@ export default function Research(){
               return (
                 <div key={tier} style={{marginBottom:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                    <div style={{fontSize:13,fontWeight:700,color:C.brass}}>{tier==="기본"?"기본 (경제)":tier==="최종"?"최종":`티어 ${tier}`} <span style={sub}>TG{list[0].tg}</span></div>
+                    <div style={{fontSize:13,fontWeight:700,color:C.brass}}>{ds.tierLabel(tier)} <span style={sub}>{ds.tierTg(tier)}</span></div>
                     {tier!=="최종" && <div style={{display:"flex",gap:4}}>
-                      {[0,10].map(v=><button key={v} style={{...btn,padding:"1px 6px",fontSize:11}} onClick={()=>setTierAll(tier,v)}>전체 {v}</button>)}
+                      {[0,"max"].map(v=><button key={v} style={{...btn,padding:"1px 6px",fontSize:11}} onClick={()=>setTierAll(tier,v)}>{v===0?"전체 0":"전체 최대"}</button>)}
                     </div>}
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"3px 8px"}}>
@@ -152,7 +151,7 @@ export default function Research(){
             </section>
             <section style={{...panel,overflowX:"auto"}}>
               <h2 style={h2}>다음에 막히는 연구 (해금됐지만 자원 부족)</h2>
-              {sim.blockers.length===0 ? <div style={{color:C.dim,fontSize:13}}>{tg<8?"해금된 연구가 더 없습니다. TG 레벨이나 선행 연구를 확인하세요.":"모든 해금 연구를 올렸습니다."}</div> :
+              {sim.blockers.length===0 ? <div style={{color:C.dim,fontSize:13}}>{tg<ds.maxTg?"해금된 연구가 더 없습니다. TG 레벨이나 선행 연구를 확인하세요.":"모든 해금 연구를 올렸습니다."}</div> :
               <table style={{borderCollapse:"collapse",width:"100%"}}>
                 <thead><tr><th style={{...th,textAlign:"left"}}>연구</th><th style={th}>다음 레벨</th><th style={{...th,textAlign:"left"}}>부족한 자원</th><th style={{...th,textAlign:"left"}}>비용</th></tr></thead>
                 <tbody>{sim.blockers.slice(0,20).map(b=>(
@@ -169,7 +168,7 @@ export default function Research(){
               <h2 style={h2}>목표 설정</h2>
               <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
                 <select value={goalId} onChange={e=>{setGoalId(e.target.value); setGoalLv(l=>Math.min(l,TECH_BY_ID[e.target.value].maxLevel));}} style={{...sel,minWidth:220}}>
-                  {TIERS.map(tier=><optgroup key={tier} label={tier==="기본"?"기본 (경제)":tier==="최종"?"최종":`티어 ${tier}`}>
+                  {TIERS.map(tier=><optgroup key={tier} label={ds.tierLabel(tier)}>
                     {TECHS.filter(t=>t.tier===tier).map(t=><option key={t.id} value={t.id}>{t.ko} — {t.effect}</option>)}</optgroup>)}
                 </select>
                 <span>Lv.</span>
@@ -207,26 +206,24 @@ export default function Research(){
               <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"baseline"}}>
                 <h2 style={h2}>연구 기준표</h2>
                 <select value={refId} onChange={e=>setRefId(e.target.value)} style={{...sel,minWidth:220}}>
-                  {TIERS.map(tier=><optgroup key={tier} label={tier==="기본"?"기본 (경제)":tier==="최종"?"최종":`티어 ${tier}`}>
+                  {TIERS.map(tier=><optgroup key={tier} label={ds.tierLabel(tier)}>
                     {TECHS.filter(t=>t.tier===tier).map(t=><option key={t.id} value={t.id}>{t.ko}</option>)}</optgroup>)}
                 </select>
               </div>
-              <div style={{...sub,margin:"4px 0 10px"}}>{refTech.en} · {refTech.effect} · TG{refTech.tg} · 선행: {refTech.prereqs.length?refTech.prereqs.map(p=>TECH_BY_ID[p].ko).join(", "):"없음"}
-                {refTech.prereqs.length>0 && refTech.id!=="prov3" && " (레벨별 요구: 1,1,3,3,3,6,6,6,6,10)"}</div>
+              <div style={{...sub,margin:"4px 0 10px"}}>{refTech.en} · {refTech.effect} · TG{ds.requirements(refTech,1).tg}{ds.requirements(refTech,refTech.maxLevel).tg!==ds.requirements(refTech,1).tg?`~${ds.requirements(refTech,refTech.maxLevel).tg}`:""} · 선행: {refTech.prereqs.length?refTech.prereqs.map(p=>TECH_BY_ID[p].ko).join(", "):"없음"}
+                {ds.prereqNote(refTech) && ` (${ds.prereqNote(refTech)})`}</div>
               <table style={{borderCollapse:"collapse",width:"100%"}}>
-                <thead><tr><th style={th}>Lv</th><th style={th}>효과</th>{RES.map(r=><th key={r} style={th}>{RES_KO[r]}{RES_UNIT[r]==="M"?"(M)":""}</th>)}<th style={th}>기본 시간</th></tr></thead>
+                <thead><tr><th style={th}>Lv</th><th style={th}>효과</th>{RES.map(r=><th key={r} style={th}>{RES_KO[r]}{RES_UNIT[r]==="M"?"(M)":""}</th>)}<th style={th}>기본 시간</th><th style={th}>TG</th></tr></thead>
                 <tbody>{Array.from({length:Math.min(refTech.maxLevel,100)},(_,i)=>i+1).map(L=>{const c=levelCost(refTech,L); return (
                   <tr key={L} style={{opacity:(levels[refId]||0)>=L?0.45:1}}><td style={td}>{L}</td><td style={td}>{effectAt(refTech,L)}</td>
-                    {RES.map(r=><td key={r} style={td}>{fmtRes(r,c[r])}</td>)}<td style={td}>{dhm(c.minutes)}</td></tr>);})}
+                    {RES.map(r=><td key={r} style={td}>{fmtRes(r,c[r])}</td>)}<td style={td}>{dhm(c.minutes)}</td><td style={{...td,color:C.dim}}>{ds.requirements(refTech,L).tg}</td></tr>);})}
                 </tbody>
               </table>
             </section>
           )}
 
           <section style={{...panel,fontSize:12,color:C.dim,lineHeight:1.7}}>
-            <b style={{color:C.ink}}>참고</b> 수치는 kingshotdata.com / kingshot.net 공개 데이터 기준이며 게임 업데이트로 달라질 수 있습니다.
-            티어 VI 10레벨 순금 가루(원본 표기 1.0K)와 순금 보급 III 일부 값은 공개 표의 반올림값에서 추정했습니다.
-            한글 연구명은 번역이라 게임 내 표기와 다를 수 있습니다(영문명은 기준표 탭에서 확인).
+            <b style={{color:C.ink}}>참고</b> {ds.footnote}
           </section>
         </div>
       </div>

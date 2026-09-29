@@ -121,3 +121,29 @@ export function prereqLevel(tech, L, parentId){
   if (tech.id==="prov3") return 10;            // 황금의 심장 II 10레벨 고정
   return PREREQ_LEVEL[L];
 }
+
+// ── 데이터셋 객체 (엔진·화면 공용 인터페이스)
+export function requirements(tech, L){
+  return { tg:tech.tg, prereqs:tech.prereqs.map(p=>({ id:p, lv:prereqLevel(tech,L,p) })) };
+}
+export function prereqNote(tech){
+  if (!tech.prereqs.length) return "";
+  if (tech.id==="prov3") return "황금의 심장 II 10레벨 고정";
+  return "레벨별 요구: 1,1,3,3,3,6,6,6,6,10";
+}
+export const ADVANCED = {
+  key:"advanced", storeKey:"tg8_research_v1",
+  RES, RES_KO, RES_UNIT, RES_SCALE,
+  TECHS, TECH_BY_ID, TIERS,
+  tierLabel: tier => tier==="기본"?"기본 (경제)":tier==="최종"?"최종":`티어 ${tier}`,
+  tierTg: tier => { const t=TECHS.find(x=>x.tier===tier); return t?`TG${t.tg}`:""; },
+  groups: ["전체","보병","기병","궁병"],
+  sharedGroups: ["경제","부대"],
+  groupHint: "경제·부대 연구는 항상 포함",
+  tgOptions: [5,6,7,8],
+  tgHint: "TG5: 기본 · TG6: I~II · TG7: III~IV · TG8: V~VI",
+  maxTg: 8,
+  defaultGoal: "mauls1",
+  levelCost, effectAt, requirements, prereqNote,
+  footnote: "수치는 kingshotdata.com / kingshot.net 공개 데이터 기준이며 게임 업데이트로 달라질 수 있습니다. 티어 VI 10레벨 순금 가루(원본 표기 1.0K)와 순금 보급 III 일부 값은 공개 표의 반올림값에서 추정했습니다. 한글 연구명은 번역이라 게임 내 표기와 다를 수 있습니다(영문명은 기준표 탭에서 확인).",
+};

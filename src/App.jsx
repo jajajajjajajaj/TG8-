@@ -4,9 +4,11 @@ import { DEFAULT_COSTS, DEFAULT_BOXES } from "./defaultData.js";
 import Calculator from "./Calculator.jsx";
 import Admin from "./Admin.jsx";
 import Research from "./Research.jsx";
+import { ADVANCED } from "./research/data.js";
+import { BASIC } from "./research/basicData.js";
 import { C, font, btn } from "./ui.jsx";
 
-const routeOf = () => { const h=window.location.hash; return h==="#admin"?"admin":h==="#research"?"research":"build"; };
+const routeOf = () => { const h=window.location.hash; return h==="#admin"?"admin":h==="#research"?"research":h==="#basic"?"basic":"build"; };
 
 export default function App() {
   const [costs,setCosts] = useState(null);
@@ -48,13 +50,15 @@ export default function App() {
           <h1 style={{fontSize:22,fontWeight:800,margin:0}}>킹샷 TG 계산기</h1>
           <span style={{color:C.dim,fontSize:13}}>Made by 프랜시스 베이컨(943) · 자원 백만(M) 단위</span>
           <span style={{marginLeft:"auto",display:"flex",gap:6,flexWrap:"wrap"}}>
-            {tabBtn("build","TG8 건설")}
-            {tabBtn("research","고급 순금 연구")}
+            {tabBtn("build","TG 업그레이드")}
+            {tabBtn("basic","순금 연구")}
+            {tabBtn("research","순금 진급 연구")}
             {tabBtn("admin","관리자")}
           </span>
         </header>
 
-        {route==="research" ? <Research/>
+        {route==="research" ? <Research key="advanced" dataset={ADVANCED}/>
+          : route==="basic" ? <Research key="basic" dataset={BASIC}/>
           : !costs ? <div style={{color:C.dim}}>기준표를 불러오는 중…</div>
           : route==="admin" ? <Admin costs={costs} boxes={boxes} onClose={()=>go("build")}
                       onSaved={(c,b)=>{setCosts(c);setBoxes(b);setSource("Supabase 기준표 (방금 저장)");}}/>
