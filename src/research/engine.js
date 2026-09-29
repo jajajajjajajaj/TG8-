@@ -72,7 +72,7 @@ export function planGoal(ds, { levels, targetId, targetLevel, speed=0 }){
       for (const p of req.prereqs) visit(p.id, p.lv);
     }
   };
-  visit(targetId, targetLevel);
+  visit(targetId, Math.min(targetLevel, ds.TECH_BY_ID[targetId].maxLevel));
   const items=[]; const total=emptyRes(); let minutes=0;
   const accel=1+speed/100;
   for (const t of ds.TECHS){

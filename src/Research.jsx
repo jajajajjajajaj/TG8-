@@ -23,8 +23,9 @@ export default function Research({ dataset: ds }){
   const [strategy,setStrategy] = useState(saved?.strategy ?? "even");
   const [group,setGroup] = useState(saved?.group ?? "전체");
   const [tab,setTab] = useState("sim");
-  const [goalId,setGoalId] = useState(TECH_BY_ID[saved?.goalId] ? saved.goalId : ds.defaultGoal);
-  const [goalLv,setGoalLv] = useState(saved?.goalLv ?? 10);
+  const initGoalId = TECH_BY_ID[saved?.goalId] ? saved.goalId : ds.defaultGoal;
+  const [goalId,setGoalId] = useState(initGoalId);
+  const [goalLv,setGoalLv] = useState(Math.max(1,Math.min(TECH_BY_ID[initGoalId].maxLevel, saved?.goalLv ?? 10)));
   const [showLevels,setShowLevels] = useState(true);
   const [refId,setRefId] = useState(ds.defaultGoal);
 

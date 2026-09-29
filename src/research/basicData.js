@@ -98,7 +98,9 @@ export const TECH_BY_ID = Object.fromEntries(TECHS.map(t=>[t.id,t]));
 export const TIERS = ["보병","기병","궁병"];
 
 export function levelCost(tech, L){
-  const [bread,stone,iron,gold,dust,minutes] = T[tech.template][L-1];
+  const row = T[tech.template][L-1];
+  if (!row) return { bread:0, wood:0, stone:0, iron:0, gold:0, dust:0, tempered:0, minutes:0 };
+  const [bread,stone,iron,gold,dust,minutes] = row;
   return { bread, wood:bread, stone, iron, gold, dust, tempered:0, minutes };
 }
 export function effectAt(tech, L){
