@@ -6,7 +6,7 @@ import Admin from "./Admin.jsx";
 import Research from "./Research.jsx";
 import { ADVANCED } from "./research/data.js";
 import { BASIC } from "./research/basicData.js";
-import { C, font, btn } from "./ui.jsx";
+import { C, font, btn, THEME_CSS, useTheme } from "./ui.jsx";
 
 const routeOf = () => { const h=window.location.hash; return h==="#admin"?"admin":h==="#research"?"research":h==="#basic"?"basic":"build"; };
 
@@ -15,6 +15,7 @@ export default function App() {
   const [boxes,setBoxes] = useState(null);
   const [source,setSource] = useState("");
   const [route,setRoute] = useState(routeOf);
+  const [theme,toggleTheme] = useTheme();
 
   useEffect(()=>{
     const onHash = ()=>setRoute(routeOf());
@@ -38,13 +39,14 @@ export default function App() {
 
   const go = r => { window.location.hash = r==="build"?"":`#${r}`; setRoute(r); };
   const tabBtn = (r,label) => (
-    <button style={{...btn,...(route===r?{background:C.brass,color:"#1A1F17",fontWeight:700}:{})}} onClick={()=>go(r)}>{label}</button>
+    <button style={{...btn,...(route===r?{background:C.brass,color:C.onAccent,fontWeight:700}:{})}} onClick={()=>go(r)}>{label}</button>
   );
 
   return (
     <div style={{background:C.bg,color:C.ink,fontFamily:font,minHeight:"100vh",padding:"20px 18px 40px"}}>
-      <style>{`@media (max-width:820px){.tg8grid{grid-template-columns:1fr !important}}
-        input:focus,select:focus,button:focus-visible{outline:2px solid ${C.brass};outline-offset:1px}`}</style>
+      <style>{THEME_CSS}{`@media (max-width:820px){.tg8grid{grid-template-columns:1fr !important}}
+        input:focus,select:focus,button:focus-visible{outline:2px solid ${C.brass};outline-offset:1px}
+        input[type=number],select{color-scheme:inherit}`}</style>
       <div style={{maxWidth:1180,margin:"0 auto"}}>
         <header style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:"8px 16px",marginBottom:18}}>
           <h1 style={{fontSize:22,fontWeight:800,margin:0}}>킹샷 TG 계산기</h1>
@@ -54,6 +56,9 @@ export default function App() {
             {tabBtn("basic","순금 연구")}
             {tabBtn("research","순금 진급 연구")}
             {tabBtn("admin","관리자")}
+            <button style={{...btn,padding:"4px 8px"}} onClick={toggleTheme} title={theme==="dark"?"밝은 화면으로":"어두운 화면으로"} aria-label="테마 전환">
+              {theme==="dark"?"☀ 밝게":"☾ 어둡게"}
+            </button>
           </span>
         </header>
 

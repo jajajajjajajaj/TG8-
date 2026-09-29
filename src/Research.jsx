@@ -48,7 +48,7 @@ export default function Research({ dataset: ds }){
   return (
     <>
       {/* 요약 */}
-      <div style={{...panel,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:14,marginBottom:16,borderColor:C.brass+"66"}}>
+      <div style={{...panel,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:14,marginBottom:16,borderColor:C.brassSoft}}>
         <div><div style={sub}>지금 자원으로 올릴 수 있는 레벨 수</div>
           <div style={{fontSize:26,fontWeight:800,color:C.brass,...num}}>{sim.steps.length}단계</div>
           <div style={{...sub,...num}}>{strategy==="even"?"낮은 레벨부터 고르게":"트리 순서대로"} · {group}</div></div>
@@ -123,7 +123,7 @@ export default function Research({ dataset: ds }){
         <div style={{display:"flex",flexDirection:"column",gap:16,minWidth:0}}>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
             {[["sim","시뮬레이션"],["goal","목표까지 필요 자원"],["ref","연구 기준표"]].map(([k,l])=>(
-              <button key={k} onClick={()=>setTab(k)} style={{...btn,...(tab===k?{background:C.brass,color:"#1A1F17",fontWeight:700}:{})}}>{l}</button>
+              <button key={k} onClick={()=>setTab(k)} style={{...btn,...(tab===k?{background:C.brass,color:C.onAccent,fontWeight:700}:{})}}>{l}</button>
             ))}
           </div>
 

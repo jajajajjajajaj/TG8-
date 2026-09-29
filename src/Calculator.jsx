@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { C, num, panel, h2, th, td, tdL, btn, fmt, fmt0, dhm, NumInput } from "./ui.jsx";
 
-const STAGES = ["TG5→TG6","TG6→TG7","TG7→TG8"];
 const RES4 = ["식량","목재","석재","철광"];
 const RES6 = [...RES4,"순금","정련순금"];
 const MAX_REDUCE_H = 8;
@@ -29,7 +28,7 @@ export default function Calculator({ costs, boxes: boxDefs, source }) {
 
   const toggle = key => setChecked(s=>{const n=new Set(s); n.has(key)?n.delete(key):n.add(key); return n;});
   const toggleBuilding = b => setChecked(s=>{
-    const keys = STAGES.map(st=>`${b}|${st}`); const all = keys.every(k=>s.has(k));
+    const keys = costs.filter(r=>r.building===b).map(r=>`${b}|${r.stage}`); const all = keys.every(k=>s.has(k));
     const n=new Set(s); keys.forEach(k=> all?n.delete(k):n.add(k)); return n;
   });
 
@@ -82,7 +81,7 @@ export default function Calculator({ costs, boxes: boxDefs, source }) {
 
   return (
     <>
-      <div style={{...panel,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:14,marginBottom:16,borderColor:C.brass+"66"}}>
+      <div style={{...panel,display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:14,marginBottom:16,borderColor:C.brassSoft}}>
         <div>
           <div style={{fontSize:12,color:C.dim}}>총 건설시간 (체크한 구간)</div>
           <div style={{fontSize:26,fontWeight:800,color:C.brass,...num}}>{dhm(calc.total.stageMin)}</div>
@@ -172,7 +171,7 @@ export default function Calculator({ costs, boxes: boxDefs, source }) {
               </tr></thead>
               <tbody>
                 {BUILDINGS.map(b=> calc.rows.filter(r=>r.b===b).map((r,i)=>(
-                  <tr key={r.key} style={{opacity:r.on?1:0.5,background:r.on?C.brass+"12":"transparent"}}>
+                  <tr key={r.key} style={{opacity:r.on?1:0.5,background:r.on?C.brassTint:"transparent"}}>
                     <td style={tdL}>{i===0 && <button onClick={()=>toggleBuilding(b)} style={{...btn,padding:"2px 6px",fontWeight:700}}>{b}</button>}</td>
                     <td style={tdL}>{r.st}</td>
                     <td style={td}><input type="checkbox" checked={r.on} onChange={()=>toggle(r.key)} style={{accentColor:C.brass,width:16,height:16}}/></td>
@@ -242,7 +241,7 @@ export default function Calculator({ costs, boxes: boxDefs, source }) {
 
           <section style={{...panel,fontSize:12,color:C.dim,lineHeight:1.7}}>
             <b style={{color:C.ink}}>계산 순서</b> ① 원본 1건 시간 ÷ (1 + 건설가속) → ② 1건당 감소 시간(최대 8시간)을 뺌 → ③ ×5 로 구간 합계.
-            한 구간(예: TG6→TG7)은 TG6-1~TG6-4와 TG7, 총 5번의 업그레이드입니다. 살로 할인은 식량·목재·석재·철광 비용에만 적용됩니다.
+            한 구간(예: TG6→TG7)은 TG6-1~TG6-4와 TG7, 총 5번의 업그레이드입니다 (Lv30→TG1은 30-1~30-4와 TG1). 전쟁아카데미는 도시센터 TG1에서 바로 생기므로 TG1→TG2 구간부터 있습니다. 살로 할인은 식량·목재·석재·철광 비용에만 적용됩니다.
             <div style={{marginTop:6}}>기준 수치 출처: {source}</div>
           </section>
         </div>
