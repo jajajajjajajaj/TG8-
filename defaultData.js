@@ -1,4 +1,4 @@
-// Supabase 연결이 안 될 때 쓰는 내장 기본값 (킹샷 TG 건설 기준표 · Made by 아몬드(943))
+// Supabase 연결이 안 될 때 쓰는 내장 기본값 (킹샷 TG 건설 기준표 · Made by 하얀 뱀(1117))
 // Lv30→TG1 ~ TG4→TG5 구간: kingshotdata.kr 건물 데이터(1건당 비용 × 5회) 기준. 구간 = x-1·x-2·x-3·x-4·TG(x+1) 5회 업그레이드
 export const DEFAULT_COSTS = [
   ["도시센터","Lv30→TG1",660,0,335,335,65,16.5,10080],
